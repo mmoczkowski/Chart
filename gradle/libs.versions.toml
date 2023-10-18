@@ -1,0 +1,26 @@
+[versions]
+compose = "1.5.1"
+kotlin = "1.9.0"
+ktor = "2.3.4"
+
+[libraries]
+compose-desktop = { module = "org.jetbrains.compose.desktop:desktop", version.ref = "compose" }
+compose-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended-desktop", version.ref = "compose" }
+kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlin-test = {module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.5.1"}
+ktor-bom = { group = "io.ktor", name = "ktor-bom", version.ref = "ktor" }
+ktor-client-auth = { group = "io.ktor", name = "ktor-client-auth" }
+ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio" }
+ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation" }
+ktor-client-core = { group = "io.ktor", name = "ktor-client-core" }
+ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging" }
+ktor-serialization-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json" }
+
+[plugins]
+chart-jvm = { id = "chart.jvm", version = "unspecified" }
+chart-maven = { id = "chart.maven", version = "unspecified" }
+chart-signing = { id = "chart.signing", version = "unspecified" }
+jb-compose = { id = "org.jetbrains.compose", version.ref = "compose" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
