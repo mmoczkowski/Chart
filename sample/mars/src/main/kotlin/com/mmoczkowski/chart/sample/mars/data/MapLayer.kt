@@ -17,19 +17,15 @@
 package com.mmoczkowski.chart.sample.mars.data
 
 enum class MapLayer(
-    val id: String,
-    val title: String
+    val id: String
 ) {
     Color(
         id = "Mars_Viking_MDIM21_ClrMosaic_global_232m",
-        title = "Color"
     ),
     Elevation(
         id = "Mars_MGS_MOLA_ClrShade_merge_global_463m",
-        title = "Elevation"
     ),
     Albedo(
         id = "msss_atlas_simp_clon",
-        title = "Albedo"
     )
 }
