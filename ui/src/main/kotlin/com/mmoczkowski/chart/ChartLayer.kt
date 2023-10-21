@@ -27,9 +27,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
 import com.mmoczkowski.chart.cache.api.Cache
 import com.mmoczkowski.chart.provider.api.Tile
 import com.mmoczkowski.chart.provider.api.TileCoords
@@ -39,6 +41,8 @@ import com.mmoczkowski.chart.provider.api.TileProvider
 internal fun ChartLayer(
     modifier: Modifier = Modifier,
     tiles: List<Tile>,
+    tileSize: Int,
+    offset: Offset,
     success: @Composable (TileCoords, ImageBitmap) -> Unit,
     error: @Composable () -> Unit,
     loading: @Composable () -> Unit,
@@ -54,21 +58,21 @@ internal fun ChartLayer(
                         tileState = TileState.Loading
                         tileState = try {
                             val image: ImageBitmap = cache.get(tile.coords) { coords ->
-                                provider.getTile(coords)
+                                provider.getTile(coords, tileSize)
                             }
                             TileState.Success(tile.coords, image = image)
                         } catch (exception: Exception) {
                             TileState.Error
                         }
                     }
-                    val sizePx = with(LocalDensity.current) { provider.tileSize.toDp() }
+                    val tileSizeDp = with(LocalDensity.current) { tileSize.toDp() }
 
                     TileContent(
                         state = tileState,
                         success = success,
                         error = error,
                         loading = loading,
-                        modifier = Modifier.requiredSize(sizePx, sizePx)
+                        modifier = Modifier.requiredSize(tileSizeDp)
                     )
                 }
             }
@@ -83,7 +87,13 @@ internal fun ChartLayer(
             placeables.mapIndexed { index, placeable ->
                 tiles[index] to placeable
             }.forEach { (tile, placeable) ->
-                placeable.place(tile.pixelPosition)
+                placeable.placeRelativeWithLayer(
+                    position = tile.pixelPosition,
+                    zIndex = 0f,
+                ) {
+                    translationX = offset.x
+                    translationY = offset.y
+                }
             }
         }
     }

@@ -18,11 +18,16 @@ package com.mmoczkowski.chart.provider.impl.osm
 
 import androidx.compose.runtime.Composable
 import com.mmoczkowski.chart.provider.api.TileProvider
+import com.mmoczkowski.chart.provider.api.TileSizeUnsupportedException
 import com.mmoczkowski.chart.provider.impl.url.rememberUrlTileProvider
 
 private const val OSM_TILE_SIZE: Int = 256
 
 @Composable
-fun rememberOpenStreetMapTileProvider(): TileProvider = rememberUrlTileProvider(OSM_TILE_SIZE) { tile ->
-    "https://tile.openstreetmap.org/${tile.zoom}/${tile.x}/${tile.y}.png"
+fun rememberOpenStreetMapTileProvider(): TileProvider = rememberUrlTileProvider { tileCoords, tileSize ->
+    if (tileSize != OSM_TILE_SIZE) {
+        throw TileSizeUnsupportedException(tileSize)
+    }
+
+    "https://tile.openstreetmap.org/${tileCoords.zoom}/${tileCoords.x}/${tileCoords.y}.png"
 }

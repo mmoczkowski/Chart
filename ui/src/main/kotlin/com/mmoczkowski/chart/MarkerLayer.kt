@@ -45,8 +45,14 @@ internal fun <T> MarkerLayer(
             placeables.forEachIndexed { index, placeable ->
                 val item: T = markers[index]
                 val position: LatLng = markerPosition(item)
-                val pixel = state.offset - position.getPixelCoords(state.zoom)
-                placeable.place(pixel.x.toInt(), pixel.y.toInt())
+
+                placeable.placeRelativeWithLayer(
+                    position = state.getPixelCoords(position),
+                    zIndex = 0f,
+                ) {
+                    translationX = state.translationOffset.x
+                    translationY = state.translationOffset.y
+                }
             }
         }
     }

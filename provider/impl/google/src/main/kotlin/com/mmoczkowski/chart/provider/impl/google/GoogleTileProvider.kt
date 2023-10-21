@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import com.mmoczkowski.chart.provider.api.TileCoords
 import com.mmoczkowski.chart.provider.api.TileProvider
+import com.mmoczkowski.chart.provider.api.TileSizeUnsupportedException
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
@@ -46,17 +47,19 @@ class GoogleTileProvider internal constructor(
     private var session: Session? = null
     private val mutex = Mutex()
 
-    override val tileSize: Int
-        get() = 256
-
-    override suspend fun getTile(tile: TileCoords): ImageBitmap {
+    override suspend fun getTile(tile: TileCoords, tileSize: Int): ImageBitmap {
         mutex.withLock {
             if (session == null) {
                 session = getSession()
             }
         }
 
-        return getTileBitmap(tile)
+        val bitmap: ImageBitmap = getTileBitmap(tile)
+        if(bitmap.height != tileSize || bitmap.width != tileSize) {
+            throw TileSizeUnsupportedException(tileSize)
+        }
+
+        return bitmap
     }
 
     private suspend fun getSession(): Session =
@@ -78,7 +81,7 @@ class GoogleTileProvider internal constructor(
             )
 
         mutex.withLock {
-            if(response.status == HttpStatusCode.Unauthorized) {
+            if (response.status == HttpStatusCode.Unauthorized) {
                 session = null
             }
         }

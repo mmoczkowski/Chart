@@ -75,8 +75,8 @@ fun main() = application {
                 tilesRowCount = { zoom -> (2f.pow(zoom) * 2).toInt() }
             )
             var selectedLayer: String by remember { mutableStateOf(mapLayers.first().id) }
-            val urlBuilder: (TileCoords) -> String = remember(selectedLayer) {
-                { tileCoords ->
+            val urlBuilder: (TileCoords, Int) -> String = remember(selectedLayer) {
+                { tileCoords, _ ->
                     "https://api.nasa.gov/mars-wmts/catalog/$selectedLayer/1.0.0/default/default028mm/" +
                             "${tileCoords.zoom}/" +
                             "${tileCoords.y}/" +
@@ -90,7 +90,6 @@ fun main() = application {
                 marker = { poi -> PoiMarker(poi) },
                 markerPosition = { poi -> poi.position },
                 provider = rememberUrlTileProvider(
-                    tileSize = 256,
                     urlBuilder = urlBuilder
                 ),
                 cache = rememberLruCache(keys = arrayOf(urlBuilder))

@@ -29,21 +29,20 @@ import io.ktor.client.request.get
 import org.jetbrains.skia.Image
 
 class UrlTileProvider internal constructor(
-    override val tileSize: Int,
     private val httpClient: HttpClient,
-    private val urlBuilder: (TileCoords) -> String,
+    private val urlBuilder: (TileCoords, Int) -> String,
 ) : TileProvider {
-    override suspend fun getTile(tile: TileCoords): ImageBitmap {
-        val url: String = urlBuilder(tile)
+    override suspend fun getTile(tile: TileCoords, tileSize: Int): ImageBitmap {
+        val url: String = urlBuilder(tile, tileSize)
         val mapTileBytes: ByteArray = httpClient.get(url).body()
         return Image.makeFromEncoded(mapTileBytes).toComposeImageBitmap()
     }
 }
 
 @Composable
-fun rememberUrlTileProvider(tileSize: Int, urlBuilder: (TileCoords) -> String): TileProvider {
+fun rememberUrlTileProvider(urlBuilder: (TileCoords, Int) -> String): TileProvider {
     val httpClient: HttpClient = rememberHttpClient()
-    return remember(tileSize, urlBuilder) { UrlTileProvider(tileSize, httpClient, urlBuilder) }
+    return remember(urlBuilder) { UrlTileProvider(httpClient, urlBuilder) }
 }
 
 @Composable

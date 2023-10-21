@@ -21,7 +21,6 @@ import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.CircularProgressIndicator
@@ -31,8 +30,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
@@ -41,7 +38,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.mmoczkowski.chart.MarkerScope.Companion.relativeOffset
 import com.mmoczkowski.chart.cache.api.Cache
-import com.mmoczkowski.chart.provider.api.Tile
 import com.mmoczkowski.chart.provider.api.TileCoords
 import com.mmoczkowski.chart.provider.api.TileProvider
 
@@ -122,12 +118,7 @@ private fun <T> ChartContent(
     cache: Cache<TileCoords, ImageBitmap>
 ) {
     val transformableState = rememberTransformableState { _, offsetDelta, _ ->
-        state.focus = shiftFocus(
-            currentFocus = state.focus,
-            zoom = state.zoom,
-            offsetDelta = offsetDelta,
-            tileSize = provider.tileSize
-        )
+        state.shiftFocus(offsetDelta = offsetDelta)
     }
 
     BoxWithConstraints(
@@ -135,29 +126,20 @@ private fun <T> ChartContent(
             .fillMaxSize()
             .transformable(transformableState)
     ) {
-        val visibleTiles: List<Tile> by derivedStateOf {
-            getVisibleTiles(
-                viewportSize = IntSize(constraints.maxWidth, constraints.maxHeight),
-                totalTilesCount = state.totalTilesCount,
-                zoom = state.zoom,
-                tileSize = provider.tileSize,
-                offset = state.offset
-            )
-        }
+        state.viewportSize = IntSize(constraints.maxWidth, constraints.maxHeight)
 
         ChartLayer(
-            modifier = Modifier
-                .fillMaxSize()
-                .offset(x = -maxWidth / 2, -maxHeight / 2),
-            tiles = visibleTiles,
+            tiles = state.visibleTiles,
+            tileSize = state.tileSize,
+            offset = state.translationOffset,
             success = success,
             error = error,
             loading = loading,
             provider = provider,
             cache = cache
         )
+
         MarkerLayer(
-            modifier = Modifier.fillMaxSize(),
             state = state,
             markers = markers,
             markerPosition = markerPosition,

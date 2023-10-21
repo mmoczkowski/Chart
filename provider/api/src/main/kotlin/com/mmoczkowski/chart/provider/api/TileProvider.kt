@@ -19,6 +19,5 @@ package com.mmoczkowski.chart.provider.api
 import androidx.compose.ui.graphics.ImageBitmap
 
 interface TileProvider {
-    val tileSize: Int
-    suspend fun getTile(tile: TileCoords): ImageBitmap
+    suspend fun getTile(tile: TileCoords, tileSize: Int): ImageBitmap
 }

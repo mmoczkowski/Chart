@@ -30,8 +30,8 @@ import org.jetbrains.skia.Paint
 import org.jetbrains.skia.Rect
 import org.jetbrains.skia.Typeface
 
-class DebugTileProvider(override val tileSize: Int) : TileProvider {
-    override suspend fun getTile(tile: TileCoords): ImageBitmap {
+class DebugTileProvider : TileProvider {
+    override suspend fun getTile(tile: TileCoords, tileSize: Int): ImageBitmap {
         val bitmap = Bitmap()
         bitmap.allocN32Pixels(tileSize, tileSize)
         val canvas = Canvas(bitmap)
@@ -55,6 +55,4 @@ class DebugTileProvider(override val tileSize: Int) : TileProvider {
 }
 
 @Composable
-fun rememberDebugTileProvider(tileSize: Int): TileProvider = remember(tileSize) {
-    DebugTileProvider(tileSize)
-}
+fun rememberDebugTileProvider(): TileProvider = remember { DebugTileProvider() }
