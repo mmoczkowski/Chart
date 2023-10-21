@@ -1,5 +1,9 @@
 # Chart: A JVM Tile Map Library for Compose Desktop
 
+<p align="center">
+  <img src="img/chart.gif" />
+</p>
+
 ## Overview
 Chart is a JVM library designed for loading and displaying map tiles using Compose Desktop. It's structured to be both
 modular and adaptable, catering to a range of use-cases. Whether you're building a standard map application or something
