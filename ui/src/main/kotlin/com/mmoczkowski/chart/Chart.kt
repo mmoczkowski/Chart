@@ -109,6 +109,13 @@ fun <M> Chart(
         modifier = modifier
             .fillMaxSize()
             .transformable(transformableState)
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onDoubleTap = { _ ->
+                        state.zoomIn()
+                    }
+                )
+            }
     ) {
         background()
 
