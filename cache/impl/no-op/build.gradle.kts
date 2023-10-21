@@ -17,6 +17,8 @@
 plugins {
     alias(libs.plugins.jb.compose)
     alias(libs.plugins.chart.jvm)
+    alias(libs.plugins.chart.maven)
+    alias(libs.plugins.chart.signing)
 }
 
 dependencies {
