@@ -39,12 +39,15 @@ import kotlin.math.tan
 
 class ChartState(
     val tileSize: Int,
-    initialZoom: Int,
     initialFocus: LatLng,
+    initialZoom: Int,
+    private val minZoom: Int,
+    private val maxZoom: Int,
     private val tilesRowCount: (Int) -> Int,
     private val tilesColCount: (Int) -> Int
 ) {
-    private var zoom: Int by mutableStateOf(initialZoom)
+    internal var zoom: Int by mutableStateOf(minZoom)
+        private set
 
     var focus: LatLng by mutableStateOf(initialFocus)
         internal set
@@ -128,8 +131,15 @@ class ChartState(
         }
     }
 
-    private fun setZoomLevel(newZoom: Int) {
-        zoom = newZoom.coerceIn(0..MAX_ZOOM_LEVEL)
+    init {
+        setZoomLevel(initialZoom)
+    }
+
+    fun setZoomLevel(newZoom: Int) {
+        zoom = newZoom.coerceIn(
+            minimumValue = minZoom,
+            maximumValue = maxZoom
+        )
     }
 
     fun zoomIn() {
@@ -172,17 +182,15 @@ class ChartState(
             y = (worldY * tilesCount.height).toInt(),
         )
     }
-
-    companion object {
-        private const val MAX_ZOOM_LEVEL: Int = 22
-    }
 }
 
 @Composable
 fun rememberChartState(
     tileSize: Int = 256,
-    zoom: Int = 0,
     focus: LatLng = LatLng.NullIsland,
+    zoom: Int = 0,
+    minZoom: Int = 0,
+    maxZoom: Int = 22,
     tilesRowCount: (Int) -> Int = { z -> 2f.pow(z).toInt() },
     tilesColCount: (Int) -> Int = { z -> 2f.pow(z).toInt() }
 ): ChartState = remember(zoom, focus) {
@@ -190,6 +198,8 @@ fun rememberChartState(
         tileSize = tileSize,
         initialZoom = zoom,
         initialFocus = focus,
+        minZoom = minZoom,
+        maxZoom = maxZoom,
         tilesRowCount = tilesRowCount,
         tilesColCount = tilesColCount
     )
