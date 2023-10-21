@@ -17,6 +17,7 @@
 package com.mmoczkowski.chart
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -30,9 +31,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -58,9 +61,9 @@ fun Chart(
         DefaultBackground()
     },
     provider: TileProvider,
-    cache: Cache<TileCoords, ImageBitmap>
+    cache: Cache<Pair<Int, TileCoords>, ImageBitmap>
 ) {
-    ChartContent(
+    Chart(
         modifier = modifier,
         state = state,
         success = success,
@@ -70,13 +73,13 @@ fun Chart(
         markerPosition = { LatLng.NullIsland },
         marker = { /* no-op */ },
         background = background,
-        provider = provider,
+        layers = remember(provider) { listOf(provider) },
         cache = cache
     )
 }
 
 @Composable
-fun <T> Chart(
+fun <M> Chart(
     modifier: Modifier = Modifier,
     state: ChartState = rememberChartState(),
     success: @Composable (TileCoords, ImageBitmap) -> Unit = { _, image ->
@@ -88,43 +91,15 @@ fun <T> Chart(
     loading: @Composable () -> Unit = {
         DefaultLoadingTile()
     },
-    markers: List<T>,
-    markerPosition: (T) -> LatLng,
-    marker: @Composable MarkerScope.(T) -> Unit = { DefaultMarker() },
+    markers: List<M>,
+    markerPosition: (M) -> LatLng,
+    marker: @Composable MarkerScope.(M) -> Unit = { DefaultMarker() },
     background: @Composable () -> Unit = {
         DefaultBackground()
     },
-    provider: TileProvider,
-    cache: Cache<TileCoords, ImageBitmap>
-) {
-    ChartContent(
-        modifier = modifier,
-        state = state,
-        success = success,
-        error = error,
-        loading = loading,
-        markers = markers,
-        markerPosition = markerPosition,
-        marker = marker,
-        background = background,
-        provider = provider,
-        cache = cache
-    )
-}
-
-@Composable
-private fun <T> ChartContent(
-    modifier: Modifier = Modifier,
-    state: ChartState,
-    success: @Composable (TileCoords, ImageBitmap) -> Unit,
-    error: @Composable () -> Unit,
-    loading: @Composable () -> Unit,
-    markers: List<T>,
-    markerPosition: (T) -> LatLng,
-    marker: @Composable MarkerScope.(T) -> Unit,
-    background: @Composable () -> Unit,
-    provider: TileProvider,
-    cache: Cache<TileCoords, ImageBitmap>
+    layers: List<TileProvider>,
+    isLayerVisible: (Int) -> Boolean = { true },
+    cache: Cache<Pair<Int, TileCoords>, ImageBitmap>
 ) {
     val transformableState = rememberTransformableState { _, offsetDelta, _ ->
         state.shiftFocus(offsetDelta = offsetDelta)
@@ -146,7 +121,8 @@ private fun <T> ChartContent(
             success = success,
             error = error,
             loading = loading,
-            provider = provider,
+            layers = layers,
+            isLayerVisible = isLayerVisible,
             cache = cache
         )
 

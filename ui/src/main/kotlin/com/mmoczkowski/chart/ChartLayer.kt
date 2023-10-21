@@ -31,7 +31,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
 import com.mmoczkowski.chart.cache.api.Cache
 import com.mmoczkowski.chart.provider.api.Tile
 import com.mmoczkowski.chart.provider.api.TileCoords
@@ -43,39 +42,43 @@ internal fun ChartLayer(
     tiles: List<Tile>,
     tileSize: Int,
     offset: Offset,
+    layers: List<TileProvider>,
+    isLayerVisible: (Int) -> Boolean,
     success: @Composable (TileCoords, ImageBitmap) -> Unit,
     error: @Composable () -> Unit,
     loading: @Composable () -> Unit,
-    provider: TileProvider,
-    cache: Cache<TileCoords, ImageBitmap>
+    cache: Cache<Pair<Int, TileCoords>, ImageBitmap>,
 ) {
     Layout(
         content = {
-            tiles.forEach { tile ->
-                key(tile.coords) {
-                    var tileState: TileState by remember { mutableStateOf(TileState.Loading) }
-                    LaunchedEffect(tile.coords, provider) {
-                        tileState = TileState.Loading
-                        tileState = try {
-                            val image: ImageBitmap = cache.get(tile.coords) { coords ->
-                                provider.getTile(coords, tileSize)
+            layers.forEachIndexed { layerIndex, provider ->
+                tiles.forEach { tile ->
+                    key(layerIndex, tile.coords) {
+                        var tileState: TileState by remember { mutableStateOf(TileState.Loading) }
+                        LaunchedEffect(tile.coords, provider) {
+                            tileState = TileState.Loading
+                            tileState = try {
+                                val image: ImageBitmap = cache.get(layerIndex to tile.coords) { (_, coords) ->
+                                    provider.getTile(coords, tileSize)
+                                }
+                                TileState.Success(tile.coords, image = image)
+                            } catch (exception: Exception) {
+                                TileState.Error
                             }
-                            TileState.Success(tile.coords, image = image)
-                        } catch (exception: Exception) {
-                            TileState.Error
                         }
-                    }
-                    val tileSizeDp = with(LocalDensity.current) { tileSize.toDp() }
+                        val tileSizeDp = with(LocalDensity.current) { tileSize.toDp() }
 
-                    TileContent(
-                        state = tileState,
-                        success = success,
-                        error = error,
-                        loading = loading,
-                        modifier = Modifier.requiredSize(tileSizeDp)
-                    )
+                        TileContent(
+                            state = tileState,
+                            success = success,
+                            error = error,
+                            loading = loading,
+                            modifier = Modifier.requiredSize(tileSizeDp)
+                        )
+                    }
                 }
             }
+
         },
         modifier = modifier.fillMaxSize()
     ) { measurables, constraints ->
@@ -84,15 +87,19 @@ internal fun ChartLayer(
         }
 
         layout(constraints.maxWidth, constraints.maxHeight) {
-            placeables.mapIndexed { index, placeable ->
-                tiles[index] to placeable
-            }.forEach { (tile, placeable) ->
-                placeable.placeRelativeWithLayer(
-                    position = tile.pixelPosition,
-                    zIndex = 0f,
-                ) {
-                    translationX = offset.x
-                    translationY = offset.y
+            placeables.forEachIndexed { index, placeable ->
+                val layerIndex: Int = index / tiles.size
+                if(isLayerVisible(layerIndex)) {
+                    val tileIndex: Int = index % tiles.size
+                    val tile: Tile = tiles[tileIndex]
+
+                    placeable.placeRelativeWithLayer(
+                        position = tile.pixelPosition,
+                        zIndex = layerIndex.toFloat(),
+                    ) {
+                        translationX = offset.x
+                        translationY = offset.y
+                    }
                 }
             }
         }

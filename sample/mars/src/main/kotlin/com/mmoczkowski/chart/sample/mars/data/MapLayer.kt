@@ -16,13 +16,20 @@
 
 package com.mmoczkowski.chart.sample.mars.data
 
-data class MapLayer(
+enum class MapLayer(
     val id: String,
-    val name: String
-)
-
-internal val mapLayers: List<MapLayer> = listOf(
-    MapLayer(id = "Mars_Viking_MDIM21_ClrMosaic_global_232m", name = "Color"),
-    MapLayer(id = "Mars_MGS_MOLA_ClrShade_merge_global_463m", name = "Elevation"),
-    MapLayer(id = "msss_atlas_simp_clon", name = "Albedo")
-)
+    val title: String
+) {
+    Color(
+        id = "Mars_Viking_MDIM21_ClrMosaic_global_232m",
+        title = "Color"
+    ),
+    Elevation(
+        id = "Mars_MGS_MOLA_ClrShade_merge_global_463m",
+        title = "Elevation"
+    ),
+    Albedo(
+        id = "msss_atlas_simp_clon",
+        title = "Albedo"
+    )
+}

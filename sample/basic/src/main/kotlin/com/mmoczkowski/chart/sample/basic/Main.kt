@@ -56,7 +56,7 @@ fun main() = application {
                 Chart(
                     state = state,
                     provider = rememberOpenStreetMapTileProvider(),
-                    cache = rememberLruCache(maxSize = 256, keys = arrayOf(Unit))
+                    cache = rememberLruCache(maxSize = 256)
                 )
                 MapControls(
                     onZoomIn = state::zoomIn,

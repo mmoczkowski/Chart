@@ -55,11 +55,10 @@ import com.mmoczkowski.chart.Chart
 import com.mmoczkowski.chart.LatLng
 import com.mmoczkowski.chart.MarkerScope.Companion.relativeOffset
 import com.mmoczkowski.chart.cache.impl.lru.rememberLruCache
-import com.mmoczkowski.chart.provider.api.TileCoords
 import com.mmoczkowski.chart.provider.impl.url.rememberUrlTileProvider
 import com.mmoczkowski.chart.rememberChartState
+import com.mmoczkowski.chart.sample.mars.data.MapLayer
 import com.mmoczkowski.chart.sample.mars.data.PointOfInterest
-import com.mmoczkowski.chart.sample.mars.data.mapLayers
 import com.mmoczkowski.chart.sample.mars.data.pointsOfInterests
 import kotlin.math.pow
 
@@ -74,10 +73,10 @@ fun main() = application {
                 zoom = 3,
                 tilesRowCount = { zoom -> (2f.pow(zoom) * 2).toInt() }
             )
-            var selectedLayer: String by remember { mutableStateOf(mapLayers.first().id) }
-            val urlBuilder: (TileCoords, Int) -> String = remember(selectedLayer) {
-                { tileCoords, _ ->
-                    "https://api.nasa.gov/mars-wmts/catalog/$selectedLayer/1.0.0/default/default028mm/" +
+            var selectedLayerIndex: Int by remember { mutableStateOf(0) }
+            val providers = MapLayer.entries.map { layer ->
+                rememberUrlTileProvider { tileCoords, _ ->
+                    "https://api.nasa.gov/mars-wmts/catalog/${layer.id}/1.0.0/default/default028mm/" +
                             "${tileCoords.zoom}/" +
                             "${tileCoords.y}/" +
                             "${tileCoords.x}.png"
@@ -89,16 +88,15 @@ fun main() = application {
                 markers = remember { pointsOfInterests },
                 marker = { poi -> PoiMarker(poi) },
                 markerPosition = { poi -> poi.position },
-                provider = rememberUrlTileProvider(
-                    urlBuilder = urlBuilder
-                ),
-                cache = rememberLruCache(keys = arrayOf(urlBuilder))
+                layers = providers,
+                isLayerVisible = { layerIndex -> selectedLayerIndex == layerIndex },
+                cache = rememberLruCache()
             )
 
             MapControls(
                 focus = chartState.focus,
-                selectedLayer = selectedLayer,
-                onLayerSelected = { layer -> selectedLayer = layer },
+                selectedLayer = selectedLayerIndex,
+                onLayerSelected = { layer -> selectedLayerIndex = layer },
                 onZoomIn = chartState::zoomIn,
                 onZoomOut = chartState::zoomOut
             )
@@ -110,8 +108,8 @@ fun main() = application {
 private fun MapControls(
     modifier: Modifier = Modifier,
     focus: LatLng,
-    selectedLayer: String,
-    onLayerSelected: (String) -> Unit,
+    selectedLayer: Int,
+    onLayerSelected: (Int) -> Unit,
     onZoomIn: () -> Unit,
     onZoomOut: () -> Unit,
 ) {
@@ -130,12 +128,12 @@ private fun MapControls(
         }
 
         Row(modifier = Modifier.align(Alignment.TopEnd)) {
-            mapLayers.forEach { layer ->
+            MapLayer.entries.forEachIndexed { index, layer ->
                 LayerButton(
-                    isSelected = layer.id == selectedLayer,
+                    isSelected = index == selectedLayer,
                     name = layer.name
                 ) {
-                    onLayerSelected(layer.id)
+                    onLayerSelected(index)
                 }
             }
         }

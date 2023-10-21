@@ -43,6 +43,6 @@ class LruCache<K, V>(private val maxSize: Int) : Cache<K, V> {
 }
 
 @Composable
-fun <K, V> rememberLruCache(maxSize: Int = 100, vararg keys: Any? = emptyArray()): Cache<K, V> = remember(maxSize, *keys) {
+fun <K, V> rememberLruCache(maxSize: Int = 100): Cache<K, V> = remember(maxSize) {
     LruCache(maxSize)
 }
