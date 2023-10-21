@@ -54,6 +54,9 @@ fun Chart(
     loading: @Composable () -> Unit = {
         DefaultLoadingTile()
     },
+    background: @Composable () -> Unit = {
+        DefaultBackground()
+    },
     provider: TileProvider,
     cache: Cache<TileCoords, ImageBitmap>
 ) {
@@ -66,6 +69,7 @@ fun Chart(
         markers = emptyList<Nothing>(),
         markerPosition = { LatLng.NullIsland },
         marker = { /* no-op */ },
+        background = background,
         provider = provider,
         cache = cache
     )
@@ -87,6 +91,9 @@ fun <T> Chart(
     markers: List<T>,
     markerPosition: (T) -> LatLng,
     marker: @Composable MarkerScope.(T) -> Unit = { DefaultMarker() },
+    background: @Composable () -> Unit = {
+        DefaultBackground()
+    },
     provider: TileProvider,
     cache: Cache<TileCoords, ImageBitmap>
 ) {
@@ -99,6 +106,7 @@ fun <T> Chart(
         markers = markers,
         markerPosition = markerPosition,
         marker = marker,
+        background = background,
         provider = provider,
         cache = cache
     )
@@ -114,6 +122,7 @@ private fun <T> ChartContent(
     markers: List<T>,
     markerPosition: (T) -> LatLng,
     marker: @Composable MarkerScope.(T) -> Unit,
+    background: @Composable () -> Unit,
     provider: TileProvider,
     cache: Cache<TileCoords, ImageBitmap>
 ) {
@@ -126,6 +135,8 @@ private fun <T> ChartContent(
             .fillMaxSize()
             .transformable(transformableState)
     ) {
+        background()
+
         state.viewportSize = IntSize(constraints.maxWidth, constraints.maxHeight)
 
         ChartLayer(
@@ -175,6 +186,13 @@ fun DefaultLoadingTile() {
         CircularProgressIndicator(
             modifier = Modifier.wrapContentSize()
         )
+    }
+}
+
+@Composable
+fun DefaultBackground() {
+    Surface(modifier = Modifier.fillMaxSize()) {
+        /* no-op */
     }
 }
 
