@@ -25,4 +25,5 @@ dependencies {
     implementation(projects.cache.api)
     implementation(projects.provider.api)
     implementation(libs.compose.desktop)
+    testImplementation(libs.kotlin.test)
 }
