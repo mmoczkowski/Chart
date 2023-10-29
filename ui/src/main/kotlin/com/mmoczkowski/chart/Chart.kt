@@ -79,6 +79,42 @@ fun Chart(
 }
 
 @Composable
+fun Chart(
+    modifier: Modifier = Modifier,
+    state: ChartState = rememberChartState(),
+    success: @Composable (TileCoords, ImageBitmap) -> Unit = { _, image ->
+        DefaultSuccessTile(image)
+    },
+    error: @Composable () -> Unit = {
+        DefaultErrorTile()
+    },
+    loading: @Composable () -> Unit = {
+        DefaultLoadingTile()
+    },
+    background: @Composable () -> Unit = {
+        DefaultBackground()
+    },
+    layers: List<TileProvider>,
+    isLayerVisible: (Int) -> Boolean = { true },
+    cache: Cache<Pair<Int, TileCoords>, ImageBitmap>
+) {
+    Chart(
+        modifier = modifier,
+        state = state,
+        success = success,
+        error = error,
+        loading = loading,
+        markers = emptyList<Nothing>(),
+        markerPosition = { LatLng.NullIsland },
+        marker = { /* no-op */ },
+        background = background,
+        layers = layers,
+        isLayerVisible = isLayerVisible,
+        cache = cache
+    )
+}
+
+@Composable
 fun <M> Chart(
     modifier: Modifier = Modifier,
     state: ChartState = rememberChartState(),

@@ -59,8 +59,6 @@ fun main() = application {
 
             Chart(
                 state = state,
-                markers = emptyList<Nothing>(),
-                markerPosition = { LatLng.NullIsland },
                 layers = listOf(
                     rememberBaseLayer(),
                     rememberAeroLayer()
