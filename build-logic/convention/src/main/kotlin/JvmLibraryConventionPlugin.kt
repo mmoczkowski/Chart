@@ -29,7 +29,7 @@ class JvmLibraryConventionPlugin : Plugin<Project> {
                 apply("org.jetbrains.kotlin.jvm")
             }
             extensions.configure<JavaPluginExtension> {
-                version = "0.3.0"
+                version = "0.4.0"
                 group = "com.mmoczkowski.chart.${project.moduleFullName}"
 
                 withJavadocJar()
