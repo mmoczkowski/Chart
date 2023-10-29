@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
@@ -144,6 +145,7 @@ fun <M> Chart(
     BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
+            .clipToBounds()
             .transformable(transformableState)
             .pointerInput(Unit) {
                 detectTapGestures(
