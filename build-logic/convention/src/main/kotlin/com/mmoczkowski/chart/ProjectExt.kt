@@ -33,12 +33,12 @@ val Project.publicationId: String
         return "maven$processedProjectName"
     }
 
+val Project.moduleFullName
+    get() = path
+        .substring(1)
+        .replace(":", ".")
+
 val Project.archiveName: String
-    get() {
-        val processedProjectName: String =
-            project
-                .path
-                .substring(1)
-                .replace(":", "-")
-        return "chart-$processedProjectName"
-    }
+    get() = group
+        .toString()
+        .replace(".", "-")
